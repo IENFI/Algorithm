@@ -67,16 +67,16 @@ public class Solution {
 		while(treeMap.size() > 0) {
 			date++;
 			if (date % 2 == 0 && treeMap.containsKey(2) && treeMap.get(2).size() > 0) {
-				treeMap.get(2).remove(0);
+				treeMap.get(2).remove(treeMap.get(2).size() - 1);
 				if (treeMap.get(2).size() == 0) 
 					treeMap.remove(2);
 			}
 			else if (date % 2 == 1 && treeMap.containsKey(1) && treeMap.get(1).size() > 0) {
-				treeMap.get(1).remove(0);
+				treeMap.get(1).remove(treeMap.get(1).size() - 1);
 				if (treeMap.get(1).size() == 0) 
 					treeMap.remove(1);
 			} else if (treeMap.containsKey(0) && treeMap.get(0).size() > 0) {
-				int idx = treeMap.get(0).remove(0);
+				int idx = treeMap.get(0).remove(treeMap.get(0).size() - 1);
 				trees[idx] += 2 - (date % 2);
 				int difference = tallestHeight - trees[idx];
 				if (difference == 0) continue;
