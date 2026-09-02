@@ -25,7 +25,7 @@ public class Solution {
 			
 			sb.append('#').append(t).append(' ');
 			
-			int center = (int) Math.ceil((float)N/2);
+			int center = (N + 1) / 2;
 			
 			for(int i = 0; i < center; i++) {
 				sb.append(arr[i]).append(' ');
