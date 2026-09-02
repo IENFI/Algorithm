@@ -12,7 +12,6 @@ public class Solution {
 	static int[] prices;
 
 	public static void main(String[] args) throws Exception {
-		// System.setIn(new FileInputStream("res/S1859/input.txt"));
 		br = new BufferedReader(new InputStreamReader(System.in));
 		sb = new StringBuilder();
 
@@ -21,7 +20,7 @@ public class Solution {
 			int N = Integer.parseInt(br.readLine());
 			answer = 0;
 			prices = new int[N];
-			int maxPrice = Integer.MIN_VALUE;
+			int maxPrice = prices[N-1];
 
 			st = new StringTokenizer(br.readLine());
 			for (int i = 0; i < N; i++) {
@@ -30,9 +29,8 @@ public class Solution {
 
 			for (int i = N - 1; i >= 0; i--) {
 				if (prices[i] > maxPrice) {
-					maxPrice = Math.max(maxPrice, prices[i]);
+					maxPrice = prices[i];
 				} else{
-//					System.out.println("maxPrice: " + maxPrice + " prices[i]: " + prices[i] + " maxPrice - prices[i]: " + (maxPrice - prices[i]));
 					answer += (maxPrice - prices[i]);
 				}
 			}
@@ -41,6 +39,5 @@ public class Solution {
 		}
 
 		System.out.println(sb.toString());
-	}
-
+    }
 }
