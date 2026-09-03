@@ -1,17 +1,11 @@
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.StringTokenizer;
 
 public class Solution {
-	static boolean[] visited;
-	static Set<Integer> allCards;
-	static List<Integer> cards;
-	static List<Integer> myCards;
+	static int[] cards;
+	static int[] myCards;
 	static final int SIZE = 9;
 	static int win, lose;
 
@@ -24,52 +18,60 @@ public class Solution {
 		int T = Integer.parseInt(br.readLine());
 		for (int t = 1; t <= T; t++) {
 			st = new StringTokenizer(br.readLine());
-			allCards = new HashSet<>();
-			myCards = new ArrayList<>();
-			win = 0; lose = 0;
+			cards = new int[SIZE];
+			// 숫자가 인덱스
+			boolean[] used = new boolean[SIZE * 2 + 1];
+			myCards = new int[SIZE];
 
-			for (int i = 1; i <= 18; i++) {
-				allCards.add(i);
-			}
+			win = 0;
+			lose = 0;
 
-			// 규영 카드
-			visited = new boolean[SIZE];
+			// 규영 카드 (고정)
 			for (int i = 0; i < SIZE; i++) {
-				int num = Integer.parseInt(st.nextToken());
-				myCards.add(num);
-				allCards.remove(num);
+				myCards[i] = Integer.parseInt(st.nextToken());
+				used[myCards[i]] = true;
 			}
 
 			// 인영이 카드
-			cards = new ArrayList<>(allCards);
-			
-			dfs(0, 0);
-			
-			sb.append("#" + t + " " + win +" " + lose + "\n");
+			int i = 0;
+			for (int num = 1; num <= SIZE * 2; num++) {
+				if (used[num] == true)
+					continue;
+				cards[i++] = num;
+			}
+
+			dfs(0, 0, 0);
+
+			sb.append("#" + t + " " + win + " " + lose + "\n");
 		}
 		System.out.println(sb.toString());
 	}
 
-	public static void dfs(int depth, int score) {
+	public static void dfs(int depth, int score, int mask) {
 		if (depth == SIZE) {
-			if (score > 0) win++;
-			else if (score < 0) lose++;
+			if (score > 0)
+				win++;
+			else if (score < 0)
+				lose++;
 			return;
 		}
-		
+
 		// 인영이 카드 고르기
 		for (int i = 0; i < SIZE; i++) {
-			if (visited[i]) continue;
-			
-			visited[i] = true;
-			int myCard = myCards.get(depth);
-			int card = cards.get(i);
-			if (myCard > card) 
-				dfs(depth + 1, score + myCards.get(depth) + cards.get(i));
-			else
-				dfs(depth + 1, score - myCards.get(depth) - cards.get(i));
-			
-			visited[i] = false;
+			if ((mask & (1 << i)) != 0)
+				continue;
+
+			int myCard = myCards[depth];
+			int card = cards[i];
+			int curScore = myCard + card;
+			int nextScore = score;
+			int nextMask = (mask | (1 << i));
+			if (myCard > card)
+				nextScore += curScore;
+			else if (card > myCard)
+				nextScore -= curScore;
+
+			dfs(depth + 1, nextScore, nextMask);
 		}
 	}
 
