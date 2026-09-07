@@ -7,10 +7,10 @@ public class Solution {
 	static BufferedReader br;
 	static StringBuilder sb;
 	static StringTokenizer st;
-	static int cnt, end, A, B;
+	static int end, A, B;
 	
 	public static void main(String[] args) throws Exception {
-		//System.setIn(new FileInputStream("res/S19645/sample_input.txt"));
+		// System.setIn(new FileInputStream("res/S19645/sample_input.txt"));
 		br = new BufferedReader(new InputStreamReader(System.in));
 		sb = new StringBuilder();
 		
@@ -21,9 +21,7 @@ public class Solution {
 			A = Integer.parseInt(st.nextToken());
 			B = Integer.parseInt(st.nextToken());
 			
-			cnt = 0;
 			A = binarySearch(1, end, A);
-			cnt = 0;
 			B = binarySearch(1, end, B);
 			String result = A == B ? "0" : A < B ? "A" : "B";
 			sb.append("#" + tc + " " + result + "\n");
@@ -35,15 +33,14 @@ public class Solution {
 	// binarySearch가 1을 반환함으로써 총 재귀가 몇번돌았는지 검사할 수는 없나?
 	public static int binarySearch(int start, int end, int num) {
 		int mid = (start + end) / 2;
-		cnt++;
 		if (mid == num) {
-			return cnt;
+			return 1;
 		}
 		else if (num < mid) {
-			return binarySearch(start, mid, num);
+			return 1 + binarySearch(start, mid, num);
 		}
 		else {
-			return binarySearch(mid, end, num);
+			return 1 + binarySearch(mid, end, num);
 		}
 	}
 
