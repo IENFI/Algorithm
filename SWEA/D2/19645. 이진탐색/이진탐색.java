@@ -7,7 +7,6 @@ public class Solution {
 	static BufferedReader br;
 	static StringBuilder sb;
 	static StringTokenizer st;
-	static int end, A, B;
 	
 	public static void main(String[] args) throws Exception {
 		// System.setIn(new FileInputStream("res/S19645/sample_input.txt"));
@@ -17,20 +16,24 @@ public class Solution {
 		int T = Integer.parseInt(br.readLine());
 		for (int tc = 1; tc <= T; tc++) {
 			st = new StringTokenizer(br.readLine());
-			end = Integer.parseInt(st.nextToken());
-			A = Integer.parseInt(st.nextToken());
-			B = Integer.parseInt(st.nextToken());
+			int end = Integer.parseInt(st.nextToken());
+			int A = Integer.parseInt(st.nextToken());
+			int B = Integer.parseInt(st.nextToken());
 			
 			A = binarySearch(1, end, A);
 			B = binarySearch(1, end, B);
 			String result = A == B ? "0" : A < B ? "A" : "B";
-			sb.append("#" + tc + " " + result + "\n");
+			sb.append("#")
+			  .append(tc)
+			  .append(" ")
+			  .append(result)
+			  .append("\n");
 		}
 		
 		System.out.println(sb.toString());
 	}
 	
-	// binarySearch가 1을 반환함으로써 총 재귀가 몇번돌았는지 검사할 수는 없나?
+	// binarySearch가 1을 반환함으로써 총 재귀가 몇번돌았는지 검사
 	public static int binarySearch(int start, int end, int num) {
 		int mid = (start + end) / 2;
 		if (mid == num) {
