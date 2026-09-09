@@ -20,13 +20,13 @@ public class Solution {
 			st = new StringTokenizer(br.readLine());
 			N = Integer.parseInt(st.nextToken());
 			M = Integer.parseInt(st.nextToken());
-			hateMask = new int[N + 1];
-			answer = (int) Math.pow(2, N);
+			hateMask = new int[N];
+			answer = 0;
 			
 			for (int i = 0; i < M; i++) {
 				st = new StringTokenizer(br.readLine());
-				int a = Integer.parseInt(st.nextToken());
-				int b = Integer.parseInt(st.nextToken());
+				int a = Integer.parseInt(st.nextToken()) - 1;
+				int b = Integer.parseInt(st.nextToken()) - 1;
 				
 				// 전체 2^N을 계산한 뒤
 				// a, b를 제외한 부분집합을 빼고,
@@ -40,41 +40,32 @@ public class Solution {
 				// int 범위 안에도 충분히 담기고,
 				// 모든 경우의 수를 순회할 때에도 충분히 가능하다.
 				
-				// 편의를 위해 0의 자리는 쓰지 않는다.
-				hateMask[a] = hateMask[a] | (1 << b);
-				hateMask[b] = hateMask[b] | (1 << a);
+				hateMask[a] |= (1 << b);
+				hateMask[b] |= (1 << a);
 			}
 			
-			for (int i = 0; i < 1 << N; i++) {
-				// 위에서 편하게 하는 바람에 비트연산이 하나 더 추가된다.
-				int realMask = i << 1;
-				// 실제 검사하는 수가 필요하기 때문에 트레일링 할 변수 추가
-				int temp = realMask;
-				
-				while (temp != 0) {
-					// 가장 오른쪽의 1만 남김 (2의 보수)
-					int bit = temp & -temp;
-					// 오른쪽에 있는 0의 개수를 셈
-					// 0의 자리를 안 쓰고 한 번 왼쪽으로 시프트했기 때문에
-					// 내가 의도한 수가 됨
-					int idx = Integer.numberOfTrailingZeros(bit);
-					
-					// mask검사
-					if ((hateMask[idx] & realMask) != 0) {
-						answer--; 
-						break;
-					}
-					
-					// -1을 하면 가장 오른쪽의 1은 0이 되고
-					// 그 오른쪽의 0이 전부 1이 되기 때문에
-					// & 연산을 하면 오른쪽의 1이 없어짐
-					temp &= temp - 1;
-				}
-			}
+            combination(0, 0);
 			
 			sb.append('#').append(tc).append(' ').append(answer).append('\n');
 		}
 		System.out.println(sb.toString());
 	}
+    
+    static void combination(int idx, int comb) {
+        if (idx == N) {
+            answer++;
+            return;
+        }
+        
+        // 현재 재료는 선택하지 않기
+        combination(idx + 1, comb);
+        
+        // 현재 조합과 합칠 조합이 hateMask에 포함되어있지 않을 때만
+        // 조합 탐색 시작
+        // 아예 아닌 조합이라면 나아가지 않을 수 있음
+        if ((hateMask[idx] & comb) == 0) {
+        	combination(idx + 1, comb | (1 << idx));
+        }
+    }
 
 }
