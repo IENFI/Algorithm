@@ -3,7 +3,6 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
 public class Solution {
@@ -40,9 +39,12 @@ public class Solution {
 				for (int j = 0; j < N; j++) {
 					arr[i][j] = Integer.parseInt(st.nextToken());
 					if (arr[i][j] == 1) {
-						cores.add(new Core(i, j));
 						// 코어가 있는 자리도 전선이 못 지나감
 						visited[i][j] = true;
+						
+						// 만약 가장자리면 순회 후보로도 안 넣음
+						if (isEdge(i, j)) continue;
+						cores.add(new Core(i, j));
 					}
 				}
 			}
@@ -67,18 +69,13 @@ public class Solution {
 		}
 		Core core = cores.get(coreIdx);
 
-		if (isEdge(core.x, core.y)) {
-			// 다음 코어 검사, 코어 연결 수 하나 추가, 길이는 0이므로 그대로
-			dfs(coreIdx + 1, validCoreNum + 1, length);
-		} else {
-			for (int d = 0; d < 4; d++) {
-				if (canConnect(core.x, core.y, d)) {
-					dfs(coreIdx + 1, validCoreNum + 1, length + installWire(core.x, core.y, d));
-					removeWire(core.x, core.y, d);
-				}
+		for (int d = 0; d < 4; d++) {
+			if (canConnect(core.x, core.y, d)) {
+				dfs(coreIdx + 1, validCoreNum + 1, length + installWire(core.x, core.y, d));
+				removeWire(core.x, core.y, d);
 			}
-			dfs(coreIdx + 1, validCoreNum, length);
 		}
+		dfs(coreIdx + 1, validCoreNum, length);
 	}
 
 	static boolean isEdge(int x, int y) {
@@ -96,36 +93,37 @@ public class Solution {
 		// 가장자리는 그 전에 거르기 때문에 괜찮음
 		nx = x + dx[d];
 		ny = y + dy[d];
-		
+
 		do {
-			if (visited[nx][ny]) return false;
+			if (visited[nx][ny])
+				return false;
 			cnt++;
 			nx = x + dx[d] * cnt;
 			ny = y + dy[d] * cnt;
 		} while (isValid(nx, ny));
 		return true;
 	}
-	
+
 	static int installWire(int x, int y, int d) {
 		int nx, ny, cnt = 1;
 		nx = x + dx[d];
 		ny = y + dy[d];
-		
+
 		do {
 			visited[nx][ny] = true;
 			cnt++;
 			nx = x + dx[d] * cnt;
 			ny = y + dy[d] * cnt;
 		} while (isValid(nx, ny));
-		
+
 		return cnt - 1;
 	}
-	
+
 	static void removeWire(int x, int y, int d) {
 		int nx, ny, cnt = 1;
 		nx = x + dx[d];
 		ny = y + dy[d];
-		
+
 		do {
 			visited[nx][ny] = false;
 			cnt++;
