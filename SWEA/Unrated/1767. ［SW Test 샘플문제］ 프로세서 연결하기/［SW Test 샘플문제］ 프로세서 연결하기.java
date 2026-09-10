@@ -13,8 +13,7 @@ public class Solution {
 	static final int[] dx = { -1, 0, 0, 1 };
 	static final int[] dy = { 0, -1, 1, 0 };
 
-	static int N;
-	static int[][] arr;
+	static int N, coreSize;
 	// 전선이 지나갈 수 있으면 false
 	static boolean[][] visited;
 	static List<Core> cores;
@@ -28,7 +27,6 @@ public class Solution {
 		int T = Integer.parseInt(br.readLine());
 		for (int tc = 1; tc <= T; tc++) {
 			N = Integer.parseInt(br.readLine());
-			arr = new int[N][N];
 			visited = new boolean[N][N];
 			cores = new ArrayList<>();
 			// 0: 연결한 코어의 수, 1: 전선 길이
@@ -37,19 +35,27 @@ public class Solution {
 			for (int i = 0; i < N; i++) {
 				st = new StringTokenizer(br.readLine());
 				for (int j = 0; j < N; j++) {
-					arr[i][j] = Integer.parseInt(st.nextToken());
-					if (arr[i][j] == 1) {
+					// 처음엔 input 값 그대로 arr이라는 배열에 저장했는데
+					// 나중에 생각해보니 visited밖에 안 써서
+					// 없앰
+					int num = Integer.parseInt(st.nextToken());
+					if (num == 1) {
 						// 코어가 있는 자리도 전선이 못 지나감
 						visited[i][j] = true;
 						
+						// 가지치기 1 추가
 						// 만약 가장자리면 순회 후보로도 안 넣음
 						if (isEdge(i, j)) continue;
 						cores.add(new Core(i, j));
 					}
 				}
 			}
+			
+			// 조금이라도 최적화해보기
+			coreSize = cores.size();
 
 			// 재귀
+			// 해봐야 5^12라서 괜찮다고 생각함
 			dfs(0, 0, 0);
 
 			sb.append('#').append(tc).append(' ').append(answer[1]).append('\n');
@@ -58,7 +64,12 @@ public class Solution {
 	}
 
 	static void dfs(int coreIdx, int validCoreNum, int length) {
-		if (coreIdx == cores.size()) {
+		// 가지치기 2 추가
+		// 남은걸 전부 연결해도 최대 연결 수를 넘길 수 없을 때 가지치기 하기
+		int remaining = answer[0] - validCoreNum;
+		if (coreSize - coreIdx < remaining) return;
+		
+		if (coreIdx == coreSize) {
 			if (validCoreNum > answer[0]) {
 				answer[0] = validCoreNum;
 				answer[1] = length;
