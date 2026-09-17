@@ -1,99 +1,131 @@
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayDeque;
-import java.util.Deque;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 public class Solution {
 	static BufferedReader br;
 	static StringBuilder sb;
 	static StringTokenizer st;
-	static int result;
-	static int N;
+
+	static final int[] dx = { -1, 0, 0, 1 };
+	static final int[] dy = { 0, -1, 1, 0 };
+
+	// 필요 변수 선언
+	static int result, N, day, lastDay;
 	static int[][] arr;
 	static boolean[][] visited;
-	static int[] dx = {-1, 0, 0, 1};
-	static int[] dy = {0, -1, 1, 0};
-	static Deque<Pos> q;
-	
-	public static void main(String[] args) throws Exception{
+	static Map<Integer, List<Pos>> cheeseDay;
+	static Map<Pos, Pos> union;
+
+	public static void main(String[] args) throws Exception {
 		// System.setIn(new FileInputStream("res/S7733/input.txt"));
 		br = new BufferedReader(new InputStreamReader(System.in));
 		sb = new StringBuilder();
+
 		int T = Integer.parseInt(br.readLine());
-		for (int t = 1; t <= T; t++) {
+		for (int tc = 1; tc <= T; tc++) {
+			// 변수 초기화
+			result = 1;
 			N = Integer.parseInt(br.readLine());
 			arr = new int[N][N];
-			result = 0;
-			
-			for (int r = 0; r < N; r++) {
+			cheeseDay = new HashMap<>();
+			union = new HashMap<>();
+			lastDay = 0;
+
+			for (int i = 0; i < N; i++) {
 				st = new StringTokenizer(br.readLine());
-				for (int c = 0; c < N; c++) {
-					arr[r][c] = Integer.parseInt(st.nextToken());
+				for (int j = 0; j < N; j++) {
+					day = Integer.parseInt(st.nextToken());
+					List<Pos> list = cheeseDay.computeIfAbsent(day, k -> new ArrayList<>());
+					Pos p = new Pos(i, j);
+					list.add(p);
+					union.put(p, p);
+					lastDay = Math.max(lastDay, day);
 				}
 			}
-			// queue랑 재귀함수 중에 뭐가 더 나을까?
-			// 그냥 큐 구현이 더 쉬울 거 같음
-			for (int day = 0; day <= 100; day++) { // 1~100일까지 검사했는데 0일부터인가봄...
-				int dayResult = 0;
-				visited = new boolean[N][N]; // 먹혔거나 탐색했으면 True
-				for (int r = 0; r < N; r++) {
-					for (int c = 0; c < N; c++) {
-						if (visited[r][c]) continue;
-						// day일에 r, c 위치의 덩어리 계산 및 visited 처리
-						if (arr[r][c] <= day) {
-							visited[r][c] = true;
+
+			// day 0에는 무조건 1 덩어리
+			int bundle = 0;
+			visited = new boolean[N][N];
+			for (day = lastDay; day >= 1; day--) {
+
+				if (!cheeseDay.containsKey(day))
+					continue;
+				if (cheeseDay.get(day).size() == 0)
+					continue;
+				for (Pos p : cheeseDay.get(day)) {
+
+					// 일단 추가
+					bundle++;
+					visited[p.x][p.y] = true;
+
+					// 주변 덩어리에 합쳐지는 경우 감소
+					for (int d = 0; d < 4; d++) {
+						int nx = p.x + dx[d];
+						int ny = p.y + dy[d];
+
+						if (!isValid(nx, ny))
 							continue;
+						Pos q = new Pos(nx, ny);
+						if (visited[nx][ny]) {
+							if (!find(p).equals(find(q))) {
+								// union은 반드시 root와 root를 연결해야 한다.
+								union.put(find(q), find(p));
+								bundle--;
+							}
 						}
-						dayResult += countCheese(day, r, c);
 					}
 				}
-				result = Math.max(result, dayResult);
+				result = Math.max(result, bundle);
 			}
-			
-			sb.append('#').append(t).append(' ').append(result).append('\n');
+
+			sb.append('#').append(tc).append(' ').append(result).append('\n');
 		}
-		System.out.println(sb);
+		System.out.println(sb.toString());
 	}
-	
-	static int countCheese(int day, int r, int c) {
-		q = new ArrayDeque<>();
-		q.offer(new Pos(r, c));
-		while(!q.isEmpty()) {
-			Pos p = q.poll();
-			int x = p.x;
-			int y = p.y;
-			visited[x][y] = true;
-			
-			for (int d = 0; d < 4; d++) {
-				int nx = x + dx[d];
-				int ny = y + dy[d];
-				if (!isValid(nx, ny) || visited[nx][ny]) {
-					continue;
-				} else if (arr[nx][ny] <= day) {
-					visited[nx][ny] = true;
-					continue;
-				} else {
-					q.offer(new Pos(nx, ny));
-					visited[nx][ny] = true;
-				}
-			}
-		}
-		return 1;
+
+	static Pos find(Pos p) {
+		if (union.get(p).equals(p))
+			return p;
+
+		Pos root = find(union.get(p));
+		union.put(p, root);
+		return root;
 	}
-	
+
 	static boolean isValid(int x, int y) {
-		return (x >= 0 && x < N && y >= 0 && y < N);
+		return x >= 0 && x < N && y >= 0 && y < N;
 	}
-	
+
 	static class Pos {
 		int x;
 		int y;
+
 		Pos(int x, int y) {
 			this.x = x;
 			this.y = y;
 		}
-	}
 
+		@Override
+		public int hashCode() {
+			// TODO Auto-generated method stub
+			return 31 * x * y;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			// TODO Auto-generated method stub
+			if (obj == null)
+				return false;
+			if (obj.getClass() != this.getClass())
+				return false;
+			Pos pos = (Pos) obj;
+			return this.x == pos.x && this.y == pos.y;
+		}
+	}
 }
