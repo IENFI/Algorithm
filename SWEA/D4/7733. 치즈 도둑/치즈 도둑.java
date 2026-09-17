@@ -17,10 +17,9 @@ public class Solution {
 
 	// 필요 변수 선언
 	static int result, N, day, lastDay;
-	static int[][] arr;
-	static boolean[][] visited;
-	static Map<Integer, List<Pos>> cheeseDay;
-	static Map<Pos, Pos> union;
+	static boolean[] visited;
+	static List<Integer>[] cheeseDay;
+	static int[] parent;
 
 	public static void main(String[] args) throws Exception {
 		// System.setIn(new FileInputStream("res/S7733/input.txt"));
@@ -32,52 +31,63 @@ public class Solution {
 			// 변수 초기화
 			result = 1;
 			N = Integer.parseInt(br.readLine());
-			arr = new int[N][N];
-			cheeseDay = new HashMap<>();
-			union = new HashMap<>();
+			
+			// 어차피 맛 검사는 100일까지만 하니까
+			cheeseDay = new ArrayList[101];
+			parent = new int[N*N];
 			lastDay = 0;
 
 			for (int i = 0; i < N; i++) {
 				st = new StringTokenizer(br.readLine());
 				for (int j = 0; j < N; j++) {
 					day = Integer.parseInt(st.nextToken());
-					List<Pos> list = cheeseDay.computeIfAbsent(day, k -> new ArrayList<>());
-					Pos p = new Pos(i, j);
-					list.add(p);
-					union.put(p, p);
+					if (cheeseDay[day] == null) {
+						cheeseDay[day] = new ArrayList<>();
+					}
+					int pos = i * N + j;
+					cheeseDay[day].add(pos);
+					parent[pos] = pos;
 					lastDay = Math.max(lastDay, day);
 				}
 			}
 
 			// day 0에는 무조건 1 덩어리
 			int bundle = 0;
-			visited = new boolean[N][N];
+			visited = new boolean[N*N];
+			
 			for (day = lastDay; day >= 1; day--) {
 
-				if (!cheeseDay.containsKey(day))
+				if (cheeseDay[day] == null)
 					continue;
-				if (cheeseDay.get(day).size() == 0)
-					continue;
-				for (Pos p : cheeseDay.get(day)) {
-
+				
+				List<Integer> posList = cheeseDay[day];
+				for (int i = 0; i < posList.size(); i++) {
+					int pos = posList.get(i);
 					// 일단 추가
 					bundle++;
-					visited[p.x][p.y] = true;
+					visited[pos] = true;
 
 					// 주변 덩어리에 합쳐지는 경우 감소
 					for (int d = 0; d < 4; d++) {
-						int nx = p.x + dx[d];
-						int ny = p.y + dy[d];
+						int nx = pos / N + dx[d];
+						int ny = pos % N + dy[d];
 
+						// nPos로 합치고 좌표 valid 검사를 하면 
+						// 다른 행으로 넘어가는 경우를 검사하지 못함
 						if (!isValid(nx, ny))
 							continue;
-						Pos q = new Pos(nx, ny);
-						if (visited[nx][ny]) {
-							if (!find(p).equals(find(q))) {
-								// union은 반드시 root와 root를 연결해야 한다.
-								union.put(find(q), find(p));
-								bundle--;
-							}
+						
+						int nPos = nx * N + ny;
+
+						if (!visited[nPos]) continue;
+						
+						int rootA = find(pos);
+						int rootB = find(nPos);
+						
+						if (rootA != rootB) {
+							// union은 반드시 root와 root를 연결해야 한다.
+							parent[rootB] = rootA;
+							bundle--;
 						}
 					}
 				}
@@ -89,43 +99,15 @@ public class Solution {
 		System.out.println(sb.toString());
 	}
 
-	static Pos find(Pos p) {
-		if (union.get(p).equals(p))
-			return p;
+	static int find(int pos) {
+		if (parent[pos] == pos)
+			return pos;
 
-		Pos root = find(union.get(p));
-		union.put(p, root);
-		return root;
+		return parent[pos] = find(parent[pos]);
 	}
 
 	static boolean isValid(int x, int y) {
 		return x >= 0 && x < N && y >= 0 && y < N;
 	}
 
-	static class Pos {
-		int x;
-		int y;
-
-		Pos(int x, int y) {
-			this.x = x;
-			this.y = y;
-		}
-
-		@Override
-		public int hashCode() {
-			// TODO Auto-generated method stub
-			return 31 * x * y;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			// TODO Auto-generated method stub
-			if (obj == null)
-				return false;
-			if (obj.getClass() != this.getClass())
-				return false;
-			Pos pos = (Pos) obj;
-			return this.x == pos.x && this.y == pos.y;
-		}
-	}
 }
