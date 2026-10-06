@@ -31,7 +31,9 @@ class Solution {
         );
         
         for (int gate: gates) {
+            // 모든 게이트에 대해 intensity 0으로 만들고
             // 큐에 동시에 추가하기
+            intensity[gate] = 0;
             pq.offer(new int[] {gate, 0});
         }
         
@@ -41,11 +43,12 @@ class Solution {
             int cost = cur[1];
             
             if (cost > intensity[start]) continue;
-            intensity[start] = cost;
             
             for (int[] next: graph[start]) {
                 int nextNode = next[0];
                 int edgeCost = next[1];
+                
+                if (edgeCost == 0) continue;
                 
                 int curIntensity = Math.max(cost, edgeCost);
                 if (curIntensity >= intensity[nextNode]) continue;
