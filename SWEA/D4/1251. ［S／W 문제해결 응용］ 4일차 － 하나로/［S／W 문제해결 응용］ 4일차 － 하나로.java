@@ -51,15 +51,10 @@ public class Solution {
 
 			E = Double.parseDouble(br.readLine());
 
-			// 모든 정점에 대해 간선 연결
-			for (int i = 0; i < N - 1; i++) {
-				for (int j = i + 1; j < N; j++) {
-					double cost = E * (Math.pow(arr[i][0] - arr[j][0],2)
-						+ Math.pow(arr[i][1] - arr[j][1],2));	
-					adjList[i] = new Node(j, cost, adjList[i]);
-					adjList[j] = new Node(i, cost, adjList[j]);
-				}
-			}
+			// 간선 추가할 필요 없이
+			// 섬을 뽑을 때 바로 계산하면 됨
+			double[] minEdge = new double[N];
+			Arrays.fill(minEdge, Double.MAX_VALUE);
 
 			// 아무 정점이나 시작으로 삼기
 			Queue<Edge> pq = new PriorityQueue<>(Comparator.comparingDouble(a -> a.weight));
@@ -69,16 +64,25 @@ public class Solution {
 				Edge e = pq.poll();
 				int start = e.to;
 				double cost = e.weight;
-				if (visited[start]) continue;
+				if (visited[start] ||
+						cost > minEdge[start]) continue;
 
 				visited[start] = true;
+				minEdge[start] = cost;
 				result += cost;
 
-				for (Node temp = adjList[start]; temp != null; temp = temp.next) {
-					pq.offer(new Edge(temp.to, temp.weight));	
+				for (int i = 0; i < N; i++) {
+					if (i == start) continue;
+					double nCost = E * (Math.pow(arr[start][0] - arr[i][0], 2)
+						+ Math.pow(arr[start][1] - arr[i][1], 2));
+
+					if (nCost > minEdge[i]) continue;
+					pq.offer(new Edge(i, nCost));
 				}
+
 			}
-			long convertResult = (long) Math.round(result);
+
+			long convertResult = Math.round(result);
 
 			sb.append('#').append(tc).append(' ').append(convertResult).append('\n');
 		}
