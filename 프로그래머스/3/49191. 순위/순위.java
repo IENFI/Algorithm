@@ -6,7 +6,7 @@ class Solution {
         // 0은 진 것, -1은 결과를 알 수 없는 것
         int[][] win = new int[n + 1][n + 1];
         
-        for (int i = 1; i <= n; i++) {
+        for (int i = 0; i <= n; i++) {
             Arrays.fill(win[i], -1);
         }
         
@@ -42,9 +42,9 @@ class Solution {
                 if (i == j) continue;
                 if (win[i][j] == -1) break;
                 cnt++;
-                // 나 자신 제외, 0번 인덱스 제외
-                if (cnt == n - 1) answer++;
             }
+            // 나 자신 제외, 0번 인덱스 제외
+            if (cnt == n - 1) answer++;
         }
         
         return answer;
