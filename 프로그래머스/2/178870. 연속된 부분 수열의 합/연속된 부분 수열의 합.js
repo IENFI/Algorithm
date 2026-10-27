@@ -3,8 +3,8 @@ function solution(sequence, k) {
     const n = sequence.length;
     
     let minLength = n;
-    let start = -1;
-    let end = n;
+    let start = 0;
+    let end = n - 1;
     
     let sum = 0;
     let left = 0;
@@ -17,7 +17,7 @@ function solution(sequence, k) {
         }
         
         if (sum == k) {
-            const length = right - left;
+            const length = right - left + 1;
             if (length < minLength) {
                 minLength = length;
                 start = left;
